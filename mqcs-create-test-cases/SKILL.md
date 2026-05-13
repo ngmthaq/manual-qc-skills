@@ -23,9 +23,8 @@ description: >
 A three-phase workflow that takes a requirement all the way to filed tickets:
 
 ```
-Phase 1: Analyze   ─▶  Phase 2: Draft   ─▶  Phase 3: File
-(requirement →         (analysis →            (xlsx →
- analysis)              xlsx)                  tickets via MCP)
+Phase 1: Analyze          ─▶      Phase 2: Draft      ─▶    Phase 3: File
+(requirement → analysis)          (analysis → xlsx)         (xlsx → tickets via MCP)
 ```
 
 Each phase is **approval-gated** — never auto-advance. The user can also enter the flow at
@@ -35,11 +34,11 @@ any phase if they already have the upstream artifact (a finished analysis, or a 
 The detailed procedure for each phase lives in a separate reference file. Load only the
 reference for the phase you are currently executing — do not pre-load all three.
 
-| Phase       | Reference                                      | Inputs                                   | Output                           |
-| ----------- | ---------------------------------------------- | ---------------------------------------- | -------------------------------- |
-| 1 — Analyze | [references/analyze.md](references/analyze.md) | Raw text / ticket URL / Figma URL        | Approved Markdown analysis       |
-| 2 — Draft   | [references/draft.md](references/draft.md)     | Approved analysis + TEST_CASE_CONVENTION | Approved `.xlsx` test case draft |
-| 3 — File    | [references/file.md](references/file.md)       | Drafted `.xlsx` + connected MCP          | Created tickets + report         |
+| Phase       | Inputs                                   | Output                           |
+| ----------- | ---------------------------------------- | -------------------------------- |
+| 1 — Analyze | Raw text / ticket URL / Figma URL        | Approved Markdown analysis       |
+| 2 — Draft   | Approved analysis + TEST_CASE_CONVENTION | Approved `.xlsx` test case draft |
+| 3 — File    | Drafted `.xlsx` + connected MCP          | Created tickets + report         |
 
 ---
 
