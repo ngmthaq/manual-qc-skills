@@ -14,6 +14,12 @@ description: >
 
 # Create Test Cases Skill
 
+> **Adopt the persona first.** Before doing anything else in this skill, load
+> [references/persona.md](references/persona.md) to take on the Senior Manual QA Tester
+> role and its Core Principles / What You Never Do rules. The persona applies to every phase.
+
+---
+
 A three-phase workflow that takes a requirement all the way to filed tickets:
 
 ```
@@ -29,11 +35,11 @@ any phase if they already have the upstream artifact (a finished analysis, or a 
 The detailed procedure for each phase lives in a separate reference file. Load only the
 reference for the phase you are currently executing — do not pre-load all three.
 
-| Phase           | Reference                                          | Inputs                                | Output                            |
-| --------------- | -------------------------------------------------- | ------------------------------------- | --------------------------------- |
-| 1 — Analyze     | [references/analyze.md](references/analyze.md)     | Raw text / ticket URL / Figma URL     | Approved Markdown analysis        |
-| 2 — Draft       | [references/draft.md](references/draft.md)         | Approved analysis + TEST_CASE_CONVENTION | Approved `.xlsx` test case draft |
-| 3 — File        | [references/file.md](references/file.md)           | Drafted `.xlsx` + connected MCP       | Created tickets + report          |
+| Phase       | Reference                                      | Inputs                                   | Output                           |
+| ----------- | ---------------------------------------------- | ---------------------------------------- | -------------------------------- |
+| 1 — Analyze | [references/analyze.md](references/analyze.md) | Raw text / ticket URL / Figma URL        | Approved Markdown analysis       |
+| 2 — Draft   | [references/draft.md](references/draft.md)     | Approved analysis + TEST_CASE_CONVENTION | Approved `.xlsx` test case draft |
+| 3 — File    | [references/file.md](references/file.md)       | Drafted `.xlsx` + connected MCP          | Created tickets + report         |
 
 ---
 
@@ -108,6 +114,8 @@ loaded:
 
 ## Companion Files
 
+- [references/persona.md](references/persona.md) — Senior Manual QA Tester persona. Load
+  once at the start; rules apply throughout.
 - [references/analyze.md](references/analyze.md) — full procedure for Phase 1.
 - [references/draft.md](references/draft.md) — full procedure for Phase 2.
 - [references/file.md](references/file.md) — full procedure for Phase 3.

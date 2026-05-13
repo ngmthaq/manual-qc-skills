@@ -8,18 +8,16 @@ than firing everything at once.
 > **No skill-zip upload required.** Claude fetches each `SKILL.md` and every companion file
 > the skill ships with (whatever subfolders are present — scripts, references, templates,
 > etc.) directly from GitHub raw URLs, then registers each one as a permanent skill in your
-> account via the built-in **`/skill-creator`** flow. The persona (`INSTRUCTIONS.md`) is
-> pasted into the target Claude **Project's Custom Instructions** so the QA role only
-> applies inside QA projects, not in unrelated chats. End result: skills are everywhere,
-> persona is scoped to where you want it, and there is no per-session reload.
+> account via the built-in **`/skill-creator`** flow. End result: skills are available in
+> every chat across every project, with no per-session reload.
 
 ---
 
 ## How to use
 
 1. Decide which Claude **Project** will host your QA work (create one if needed). The
-   skills register at the user level so they work everywhere, but `INSTRUCTIONS.md` (the
-   persona) and the per-product test-case convention live inside this Project.
+   skills register at the user level so they work everywhere, but the per-product
+   test-case convention lives inside this Project.
 2. Open a chat inside that Project.
 3. Paste the prompt below as your first message.
 4. Follow Claude's prompts. When Claude asks you to run `/skill-creator`, type the slash
@@ -39,60 +37,28 @@ troubleshoot before continuing.
 
 Here is the setup script you must follow:
 
-### Step 1 — Fetch the skill files from GitHub
+### Step 1 — Register every skill via `/skill-creator`
 
-The repo ships **two skills**, both prefixed `mqcs-` so they group together in the skill list:
+The repo ships **two skills**, both prefixed `mqcs-` so they group together in the skill list.
+Register them in this order (so prerequisites come first):
 
-1. **`mqcs-onboarding`** — one-time test-case Excel template learner.
+1. **`mqcs-onboarding`** — one-time test-case Excel template learner. Files to fetch:
    - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-onboarding/SKILL.md`
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-onboarding/references/persona.md`
    - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-onboarding/scripts/analyze_excel.py`
 
 2. **`mqcs-create-test-cases`** — end-to-end flow: analyze requirement → draft `.xlsx` → file
-   tickets via MCP.
+   tickets via MCP. Depends on `mqcs-onboarding`'s output (`TEST_CASE_CONVENTION.md`). Files
+   to fetch:
    - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/SKILL.md`
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/references/persona.md`
    - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/references/analyze.md`
    - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/references/draft.md`
    - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/references/file.md`
    - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/scripts/write_test_cases.py`
 
-Plus the project persona (installed separately in Step 2, not as a skill):
-
-- `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/INSTRUCTIONS.md`
-
-Fetch every URL above. You have web access — use it. Do **not** ask me to clone the repo or
-upload zip files.
-
-Before continuing, list back to me the two skill names and the count of files you fetched per
-skill, so I can confirm nothing was missed.
-
-### Step 2 — Install INSTRUCTIONS.md into the target Project's Custom Instructions
-
-The persona (`INSTRUCTIONS.md`) is **project-scoped** so the QA role only applies inside the
-project where I actually do QA work, not in every chat across my account.
-
-Fetch the raw content of `INSTRUCTIONS.md` from GitHub:
-
-```
-https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/INSTRUCTIONS.md
-```
-
-Display the full content back to me in a single fenced code block, then tell me to:
-
-1. Switch into (or create) the Claude **Project** where I will run QA work.
-2. Open that project's settings and find the **Instructions** field.
-3. Paste the full INSTRUCTIONS.md content there and save.
-
-Wait for me to confirm it is saved and tell you which project I installed it in. If I want
-to use the QA suite against multiple projects, remind me — once — that I will paste
-`INSTRUCTIONS.md` into each project's Custom Instructions the same way; the user-level
-skills installed in Step 3 work everywhere, but the persona is per-project.
-
-### Step 3 — Register every skill via `/skill-creator`
-
-Register both skills from Step 1, in this order (so prerequisites come first):
-
-1. `mqcs-onboarding`
-2. `mqcs-create-test-cases` (depends on `mqcs-onboarding`'s output, `TEST_CASE_CONVENTION.md`)
+You have web access — fetch these directly. Do **not** ask me to clone the repo or upload zip
+files.
 
 For each skill, do the following:
 
@@ -104,7 +70,7 @@ For each skill, do the following:
    - Scripts are written to a temp path before being executed.
    - Reference docs are read from the inlined fenced blocks instead of the `references/`
      folder, so the skill remains runnable without external file access.
-   Inline only the files you actually fetched in Step 1 — do not invent companion files.
+   Inline only the files listed above for this skill — do not invent companion files.
 2. **Tell me to type `/skill-creator`** in the chat input. Wait for `/skill-creator` to
    activate.
 3. **Walk me through `/skill-creator` for this skill**, supplying the values you prepared:
@@ -121,7 +87,7 @@ After both skills are registered, print a short table listing each skill, the co
 companion files inlined, and a one-line summary of what it does (from its `description:`
 frontmatter). Wait for me to confirm before continuing.
 
-### Step 4 — Choose ticket systems and design tool
+### Step 2 — Choose ticket systems and design tool
 
 Ask me which of these I use. I may pick zero, one, or several:
 
@@ -130,9 +96,9 @@ Ask me which of these I use. I may pick zero, one, or several:
 - **GitHub** (via GitHub MCP)
 - **Figma** (via the official Figma MCP)
 
-### Step 5 — Enable each chosen MCP connector
+### Step 3 — Enable each chosen MCP connector
 
-For each MCP I picked in Step 4, tell me:
+For each MCP I picked in Step 2, tell me:
 
 1. Exactly where to enable it (claude.ai Connectors panel, or Claude Desktop's MCP
    settings / `claude_desktop_config.json` location).
@@ -146,7 +112,7 @@ For each MCP I picked in Step 4, tell me:
 Wait for me to confirm each connector works before moving to the next one. If a sanity-check
 fails, help me debug before continuing.
 
-### Step 6 — First run: mqcs-onboarding
+### Step 4 — First run: mqcs-onboarding
 
 Tell me that the convention I am about to produce is **project-specific** (each product /
 team may use a different Excel test-case template), so I should run `mqcs-onboarding` from
@@ -159,7 +125,7 @@ inside the Claude **Project** I plan to use it in. Then walk me through:
 
 Run mqcs-onboarding end-to-end and produce `TEST_CASE_CONVENTION.md`.
 
-### Step 7 — Install TEST_CASE_CONVENTION.md into Project Knowledge
+### Step 5 — Install TEST_CASE_CONVENTION.md into Project Knowledge
 
 Once mqcs-onboarding produces the file, tell me to:
 1. Download `TEST_CASE_CONVENTION.md` from the chat.
@@ -171,13 +137,12 @@ If I plan to use these skills against multiple products with different test-case
 remind me that I will run `mqcs-onboarding` once per project and upload each project's own
 `TEST_CASE_CONVENTION.md` into that project's Knowledge.
 
-### Step 8 — Final verification and handoff
+### Step 6 — Final verification and handoff
 
 Print a short setup report covering:
 
 - Skills registered (user-level): `mqcs-onboarding` and `mqcs-create-test-cases`, with a
   check mark for each that `/skill-creator` confirmed as installed.
-- INSTRUCTIONS.md pasted into target Project's Custom Instructions: yes/no, and which project.
 - TEST_CASE_CONVENTION.md in target Project's Knowledge: yes/no, and which project.
 - MCP connectors enabled: list the ones I chose plus their sanity-check status.
 
@@ -198,16 +163,13 @@ Stop after the report. Do not pre-run mqcs-create-test-cases until I give you in
 
 ## Notes
 
-- The walkthrough does *not* assume any specific MCP is already connected. Skipping Step 4
+- The walkthrough does *not* assume any specific MCP is already connected. Skipping Step 2
   (picking none) is fine — the skills will still work for raw text + Excel workflows; you can
-  add MCPs later by re-running just Step 5.
+  add MCPs later by re-running just Step 3.
 - **Skills are installed at user (account) level via `/skill-creator`** — no per-session
   reload, no per-project reinstall. They appear in every chat across every project.
-- **`INSTRUCTIONS.md` (the QA persona) is project-scoped** — pasted into each QA project's
-  Custom Instructions. That keeps the QA role out of unrelated chats while leaving the
-  skills available everywhere.
-- **`TEST_CASE_CONVENTION.md` is also project-scoped** because each product may use a
-  different Excel template. Run `mqcs-onboarding` once per project and upload that project's own
+- **`TEST_CASE_CONVENTION.md` is project-scoped** because each product may use a different
+  Excel template. Run `mqcs-onboarding` once per project and upload that project's own
   convention to its Project Knowledge.
 - **Updating after a repo push.** Re-run this prompt; for each changed skill, tell Claude
   to update the existing `/skill-creator` entry instead of creating a duplicate (most

@@ -4,10 +4,6 @@ A pair of Claude skills for a manual-QA workflow: learn your test-case Excel tem
 then take any requirement (text / Jira / Linear / GitHub / Figma) all the way to filed tickets
 in your tracker.
 
-Both skills share the same persona — **Senior Manual QA Tester** — defined in
-[INSTRUCTIONS.md](INSTRUCTIONS.md). Paste that file into your Claude project's **Project Instructions**
-once so every skill picks it up.
-
 All skills are prefixed `mqcs-` (Manual QC Skills) so they group together in the skill list and
 don't collide with other skills you may have installed.
 
@@ -60,57 +56,13 @@ the top-level [SKILL.md](mqcs-create-test-cases/SKILL.md) is the slim orchestrat
 `mqcs-create-test-cases` calls out to MCP servers when the input is a URL or the output is a
 ticket:
 
-| Source / target           | MCP server          | Used in phase                         |
-| ------------------------- | ------------------- | ------------------------------------- |
-| Jira tickets              | Atlassian Rovo MCP  | Analyze (read), File (write)          |
-| Linear issues             | Linear MCP          | Analyze (read), File (write)          |
-| GitHub issues             | GitHub MCP          | Analyze (read), File (write)          |
-| Figma designs (read-only) | claude.ai Figma MCP | Analyze (read)                        |
+| Source / target           | MCP server          | Used in phase                |
+| ------------------------- | ------------------- | ---------------------------- |
+| Jira tickets              | Atlassian Rovo MCP  | Analyze (read), File (write) |
+| Linear issues             | Linear MCP          | Analyze (read), File (write) |
+| GitHub issues             | GitHub MCP          | Analyze (read), File (write) |
+| Figma designs (read-only) | claude.ai Figma MCP | Analyze (read)               |
 
 No MCP is required to use raw-text input + `mqcs-onboarding` + the Draft phase — those work
 purely on uploaded files. MCPs only become required at the edges: pulling from a ticketing
 system, reading a Figma design, or pushing tickets back out.
-
----
-
-## Setup
-
-Two options:
-
-**Guided (recommended).** Open [SETUP_PROMPT.md](SETUP_PROMPT.md), copy the prompt inside it
-into a fresh chat in your Claude Project, and follow the step-by-step walkthrough. It covers
-the repo discovery, Project Instructions, both skill uploads, MCP connector setup, and the
-first `mqcs-onboarding` run — gated on your confirmation at each step.
-
-**Manual.**
-
-1. Drop the contents of this folder into your Claude project (or wherever skills are loaded).
-2. Open [INSTRUCTIONS.md](INSTRUCTIONS.md) and paste it into your project's **Project
-   Instructions**.
-3. Run `mqcs-onboarding` once with your team's sample test-case Excel and upload the resulting
-   `TEST_CASE_CONVENTION.md` to **Project Knowledge**.
-4. Connect any MCPs you need (Atlassian Rovo, Linear, GitHub, Figma) in your Claude MCP
-   settings. The skill surfaces clear "MCP not connected" messages when a needed server is
-   missing, so you can wire them up incrementally.
-
----
-
-## Repo Layout
-
-```
-manual-qc-skills/
-├── INSTRUCTIONS.md              # Senior Manual QA Tester persona — paste into project instructions
-├── SETUP_PROMPT.md              # Copy-paste install walkthrough for Claude Desktop / claude.ai
-├── README.md
-├── mqcs-onboarding/
-│   ├── SKILL.md
-│   └── scripts/                 # analyze_excel.py
-└── mqcs-create-test-cases/
-    ├── SKILL.md                 # Slim orchestrator: picks phase, runs approval gates
-    ├── references/              # Per-phase deep procedure
-    │   ├── analyze.md           # Phase 1 — analyze requirement
-    │   ├── draft.md             # Phase 2 — draft test cases to .xlsx
-    │   └── file.md              # Phase 3 — file tickets via MCP
-    └── scripts/
-        └── write_test_cases.py  # Excel writer used by Phase 2
-```

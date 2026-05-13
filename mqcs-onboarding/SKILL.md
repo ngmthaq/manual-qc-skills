@@ -12,6 +12,12 @@ description: >
 
 # Onboarding Skill
 
+> **Adopt the persona first.** Before doing anything else in this skill, load
+> [references/persona.md](references/persona.md) to take on the Senior Manual QA Tester
+> role and its Core Principles / What You Never Do rules.
+
+---
+
 Read an uploaded Excel test case file, extract its structure and conventions, and save them as a
 downloadable `TEST_CASE_CONVENTION.md` file. The user uploads it once to **Project Knowledge** so
 all subsequent test case generation follows the same format.
@@ -207,3 +213,12 @@ Then tell the user:
   provide a more complete template.
 - If multiple sheets have different formats, document each sheet's schema separately.
 - Keep the convention document factual and precise — it will be machine-read by another skill.
+
+---
+
+## Companion Files
+
+- [references/persona.md](references/persona.md) — Senior Manual QA Tester persona. Load
+  once at the start; rules apply throughout.
+- [scripts/analyze_excel.py](scripts/analyze_excel.py) — Excel content + formatting reader,
+  invoked in Step 1.
