@@ -1,5 +1,5 @@
 ---
-name: onboarding
+name: mqcs-onboarding
 description: >
   Read an uploaded Excel file containing test case examples, analyze its structure and format, and
   store the extracted convention as a downloadable file the user can upload to Project Knowledge.

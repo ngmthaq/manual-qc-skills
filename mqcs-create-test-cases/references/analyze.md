@@ -1,28 +1,15 @@
----
-name: analyze-requirement
-description: >
-  Analyze software requirements from any source — raw text, Jira tickets, Linear issues, GitHub
-  issues, and/or Figma designs — and produce a structured breakdown covering summary, scope,
-  functional requirements, non-functional requirements, ambiguities, and risks. A Figma URL can
-  be supplied on its own or alongside a ticket; when both are given the analysis merges the
-  ticket text with the design context (screenshot + annotations + design-context hints). Use
-  when the user wants to understand or clarify a requirement, not write test cases.
----
+# Phase 1 — Analyze the Requirement
 
-# Requirement Analyst Skill
-
-Analyze a requirement from any source and produce a structured breakdown that clarifies intent,
-constraints, and completeness — targeted at anyone picking up the work (developer, QA, PO).
+Produce a structured Markdown breakdown that clarifies intent, constraints, and completeness —
+targeted at anyone picking up the work (developer, QA, PO).
 
 ---
 
-## Step 1 — Identify and Fetch the Input
+## Step 1.1 — Identify and Fetch the Input
 
 The user may supply **one or more** sources. Treat them as additive — for example, a Jira
 ticket _plus_ a Figma URL is a single combined requirement, not two separate analyses. Fetch
-every source provided, then merge them in Step 2.
-
-Determine what kinds of input were provided:
+every source provided, then merge them in Step 1.2.
 
 ### Raw text
 
@@ -79,7 +66,7 @@ above. Use the **claude.ai Figma MCP** to fetch the design.
   of `get_design_context`, and pass the original board URL as `figjamUrl`
 - `figma.com/slides/:fileKey/...` or `figma.com/make/:makeFileKey/...` → handle accordingly
 
-**Then fetch design context + screenshot** (the two-tool default for this skill):
+**Then fetch design context + screenshot** (the two-tool default for this phase):
 
 1. `get_design_context` with `nodeId` and `fileKey` — returns code (reference only, not used
    here), contextual hints, design-token references, and any **designer annotations**.
@@ -99,14 +86,15 @@ Do **not** transcribe code from `get_design_context` into the analysis — its c
 implementation, not for requirements. Use only the descriptive content (annotations, hints,
 visible copy).
 
-If the user provides a URL or ticket ID but no MCP tool is available, ask them to paste the content manually.
+If the user provides a URL or ticket ID but no MCP tool is available, ask them to paste the
+content manually.
 
 ---
 
-## Step 2 — Produce the Analysis
+## Step 1.2 — Produce the Analysis
 
-Output a single Markdown document with the following sections in order. Use `##` headings and bullet
-points throughout. Be concise but complete.
+Output a single Markdown document with the following sections in order. Use `##` headings and
+bullet points throughout. Be concise but complete.
 
 **Merging multiple sources.** When a Figma design is combined with a ticket source, weave the
 two together rather than splitting them:
@@ -190,42 +178,17 @@ If there are ambiguities, ask the user to clarify before proceeding.
 
 ---
 
-## Step 3 - Ask User For Approval
+## Step 1.3 — Ask User For Approval
 
 Present the analysis to the user and ask:
 
-> "Here is the analysis I produced based on the requirement. Do you approve it as-is, or do you want to modify anything?"
+> "Here is the analysis I produced based on the requirement. Do you approve it as-is, or do you
+> want to modify anything?"
 
-- **Approve**: output the final Markdown document in full, then proceed to Step 4.
+- **Approve**: keep the approved Markdown verbatim and proceed to Phase 2 (Draft) — but only
+  after the user explicitly opts in to the hand-off, per the gate described in `SKILL.md`.
 - **Modify**: apply the requested changes, re-display the document, and ask for approval again.
   Repeat until approved.
-
----
-
-## Step 4 — Offer to Draft Test Cases
-
-Once the analysis is approved, offer the next step in the QA flow. Ask the user:
-
-> ✅ **Analysis approved.** Want me to run the **draft-test-cases** skill now to turn this into
-> a test case spreadsheet?
->
-> - Reply **"yes"** and I'll hand the approved analysis straight to `draft-test-cases`.
-> - Reply **"no"** and I'll stop here — you can paste this analysis into `draft-test-cases`
->   later whenever you're ready.
-
-Behaviour:
-
-- If the user says **yes**: invoke the **draft-test-cases** skill, passing the full approved
-  Markdown analysis as its input. Do not regenerate or summarize the analysis — pass it through
-  verbatim so `draft-test-cases` sees the same content the user just approved.
-- If the user says **no** (or anything non-affirmative): stop. Do not invoke the skill. Remind
-  them once that `draft-test-cases` is the intended next step, then end the turn.
-- If the user wants the **create-test-cases** (MCP ticket-filing) skill instead, tell them
-  that one consumes the `.xlsx` produced by `draft-test-cases`, so they need to run
-  `draft-test-cases` first.
-
-Never invoke `draft-test-cases` without explicit user confirmation in this step — even if Step
-3 was approved enthusiastically. Approval of the analysis is not approval of the hand-off.
 
 ---
 
@@ -234,5 +197,6 @@ Never invoke `draft-test-cases` without explicit user confirmation in this step 
 - Always output all six sections, even if some are brief.
 - Do not add commentary before or after the Markdown document.
 - Do not wrap the output in a code fence — output raw Markdown.
-- If the source ticket is very thin, still produce all sections and flag gaps in the Ambiguities section.
+- If the source ticket is very thin, still produce all sections and flag gaps in the
+  Ambiguities section.
 - Use plain language. Avoid implementation jargon unless it came from the source.

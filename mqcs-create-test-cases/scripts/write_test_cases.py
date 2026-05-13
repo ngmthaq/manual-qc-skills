@@ -1,6 +1,6 @@
 """Write test cases to an Excel file matching a TEST_CASE_CONVENTION.
 
-The create-test-cases skill parses TEST_CASE_CONVENTION.md plus the approved test cases
+The mqcs-create-test-cases skill parses TEST_CASE_CONVENTION.md plus the approved test cases
 into a single JSON spec, then runs this script to produce the final .xlsx.
 
 Usage:

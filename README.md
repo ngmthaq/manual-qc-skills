@@ -1,71 +1,73 @@
 # Manual QA Skills
 
-A set of Claude skills for a manual-QA workflow: take a requirement, analyze it, draft test
-cases against a project-specific Excel convention, and file them as tickets in Jira / Linear /
-GitHub. Designs in Figma are first-class inputs alongside tickets.
+A pair of Claude skills for a manual-QA workflow: learn your test-case Excel template once,
+then take any requirement (text / Jira / Linear / GitHub / Figma) all the way to filed tickets
+in your tracker.
 
-All four skills share the same persona — **Senior Manual QA Tester** — defined in
+Both skills share the same persona — **Senior Manual QA Tester** — defined in
 [INSTRUCTIONS.md](INSTRUCTIONS.md). Paste that file into your Claude project's **Project Instructions**
 once so every skill picks it up.
+
+All skills are prefixed `mqcs-` (Manual QC Skills) so they group together in the skill list and
+don't collide with other skills you may have installed.
 
 ---
 
 ## The Skills
 
-The skills are designed to chain, but each runs standalone. Typical flow:
-
 ```
-onboarding ─▶ analyze-requirement ─▶ draft-test-cases ─▶ create-test-cases
-  (once,           (per ticket /         (produces an        (files tickets
-   per project)     Figma URL)            .xlsx draft)        via MCP)
+mqcs-onboarding ─▶ mqcs-create-test-cases
+  (once,             (per requirement — runs the full
+   per project)       analyze → draft → file flow)
 ```
 
-### [onboarding](onboarding/SKILL.md)
+### [mqcs-onboarding](mqcs-onboarding/SKILL.md)
 
 Run **once per project**. Upload a sample test-case Excel file; the skill analyzes its sheet
 structure, columns, allowed values, and formatting (widths, fonts, fills, borders, merged
 cells, data validation) and writes a `TEST_CASE_CONVENTION.md`. Upload that file to **Project
-Knowledge** — the downstream skills read it to keep every generated spreadsheet pixel-perfect
-against your team's template.
+Knowledge** — `mqcs-create-test-cases` reads it to keep every generated spreadsheet
+pixel-perfect against your team's template.
 
-### [analyze-requirement](analyze-requirement/SKILL.md)
+### [mqcs-create-test-cases](mqcs-create-test-cases/SKILL.md)
 
-Takes a requirement from any source — raw text, Jira ticket, Linear issue, GitHub issue,
-**Figma design URL**, or any combination — and produces a structured Markdown breakdown
-(Summary, Scope, Functional, Non-Functional, Risks & Dependencies, Ambiguities). When a Figma
-URL is supplied alongside a ticket, the analysis merges design context (screenshot + designer
-annotations + visible elements + responsive frames) with the ticket text. Asks for approval,
-then offers to hand off to `draft-test-cases`.
+End-to-end, three approval-gated phases:
 
-### [draft-test-cases](draft-test-cases/SKILL.md)
+1. **Analyze** — takes a requirement from any source (raw text, Jira / Linear / GitHub ticket,
+   Figma design URL, or any combination) and produces a structured Markdown breakdown
+   (Summary, Scope, Functional, Non-Functional, Risks & Dependencies, Ambiguities). When a
+   Figma URL is supplied alongside a ticket, the analysis merges design context (screenshot +
+   designer annotations + visible elements + responsive frames) with the ticket text.
+2. **Draft** — consumes the approved analysis and writes a `.xlsx` matching
+   `TEST_CASE_CONVENTION.md` exactly. Covers happy path, edge cases, negative cases, NFR cases,
+   risk-driven cases — plus visual states, responsive breakpoints, exact copy/labels, and
+   accessibility cases when the analysis carries Figma context.
+3. **File** — pushes one ticket per row into Jira, Linear, or GitHub via the matching MCP.
+   Always does a dry-run first; reports back ticket keys/URLs and optionally writes a
+   `{file}.tickets.json` sidecar.
 
-Consumes the approved analysis and produces a `.xlsx` draft matching
-`TEST_CASE_CONVENTION.md` exactly. Covers happy path, edge cases, negative cases, NFR cases,
-and risk-driven cases by default; when the analysis carries Figma context, additionally
-covers visual states, responsive breakpoints, exact copy/labels, and accessibility cases
-called out by designer annotations. Approval-gated — nothing is written until you say so.
+Each phase requires explicit user approval before the next starts, and the user can enter the
+flow at any phase if they already have the upstream artifact (an approved analysis, or a
+drafted `.xlsx`).
 
-### [create-test-cases](create-test-cases/SKILL.md)
-
-Reads the `.xlsx` from `draft-test-cases` and files one ticket per row in Jira, Linear, or
-GitHub via the matching MCP. Always does a dry-run first — you approve the full batch before
-any ticket is created. Reports back ticket keys/URLs and optionally writes a
-`{file}.tickets.json` sidecar.
+Phase-by-phase procedure lives in [mqcs-create-test-cases/references/](mqcs-create-test-cases/references/);
+the top-level [SKILL.md](mqcs-create-test-cases/SKILL.md) is the slim orchestrator.
 
 ---
 
 ## MCPs
 
-These skills call out to MCP servers when the input is a URL or the output is a ticket:
+`mqcs-create-test-cases` calls out to MCP servers when the input is a URL or the output is a
+ticket:
 
-| Source / target           | MCP server          | Used by                                                    |
-| ------------------------- | ------------------- | ---------------------------------------------------------- |
-| Jira tickets              | Atlassian Rovo MCP  | analyze-requirement, create-test-cases                     |
-| Linear issues             | Linear MCP          | analyze-requirement, create-test-cases                     |
-| GitHub issues             | GitHub MCP          | analyze-requirement, create-test-cases                     |
-| Figma designs (read-only) | claude.ai Figma MCP | analyze-requirement (draft-test-cases consumes its output) |
+| Source / target           | MCP server          | Used in phase                         |
+| ------------------------- | ------------------- | ------------------------------------- |
+| Jira tickets              | Atlassian Rovo MCP  | Analyze (read), File (write)          |
+| Linear issues             | Linear MCP          | Analyze (read), File (write)          |
+| GitHub issues             | GitHub MCP          | Analyze (read), File (write)          |
+| Figma designs (read-only) | claude.ai Figma MCP | Analyze (read)                        |
 
-No MCP is required to use raw-text input + `onboarding` + `draft-test-cases` — those work
+No MCP is required to use raw-text input + `mqcs-onboarding` + the Draft phase — those work
 purely on uploaded files. MCPs only become required at the edges: pulling from a ticketing
 system, reading a Figma design, or pushing tickets back out.
 
@@ -77,18 +79,18 @@ Two options:
 
 **Guided (recommended).** Open [SETUP_PROMPT.md](SETUP_PROMPT.md), copy the prompt inside it
 into a fresh chat in your Claude Project, and follow the step-by-step walkthrough. It covers
-the repo clone, Project Instructions, all four skill uploads, MCP connector setup, and the
-first `onboarding` run — gated on your confirmation at each step.
+the repo discovery, Project Instructions, both skill uploads, MCP connector setup, and the
+first `mqcs-onboarding` run — gated on your confirmation at each step.
 
 **Manual.**
 
 1. Drop the contents of this folder into your Claude project (or wherever skills are loaded).
 2. Open [INSTRUCTIONS.md](INSTRUCTIONS.md) and paste it into your project's **Project
    Instructions**.
-3. Run `onboarding` once with your team's sample test-case Excel and upload the resulting
+3. Run `mqcs-onboarding` once with your team's sample test-case Excel and upload the resulting
    `TEST_CASE_CONVENTION.md` to **Project Knowledge**.
 4. Connect any MCPs you need (Atlassian Rovo, Linear, GitHub, Figma) in your Claude MCP
-   settings. The skills surface clear "MCP not connected" messages when a needed server is
+   settings. The skill surfaces clear "MCP not connected" messages when a needed server is
    missing, so you can wire them up incrementally.
 
 ---
@@ -100,14 +102,15 @@ manual-qc-skills/
 ├── INSTRUCTIONS.md              # Senior Manual QA Tester persona — paste into project instructions
 ├── SETUP_PROMPT.md              # Copy-paste install walkthrough for Claude Desktop / claude.ai
 ├── README.md
-├── onboarding/
+├── mqcs-onboarding/
 │   ├── SKILL.md
 │   └── scripts/                 # analyze_excel.py
-├── analyze-requirement/
-│   └── SKILL.md
-├── draft-test-cases/
-│   ├── SKILL.md
-│   └── scripts/                 # write_test_cases.py
-└── create-test-cases/
-    └── SKILL.md
+└── mqcs-create-test-cases/
+    ├── SKILL.md                 # Slim orchestrator: picks phase, runs approval gates
+    ├── references/              # Per-phase deep procedure
+    │   ├── analyze.md           # Phase 1 — analyze requirement
+    │   ├── draft.md             # Phase 2 — draft test cases to .xlsx
+    │   └── file.md              # Phase 3 — file tickets via MCP
+    └── scripts/
+        └── write_test_cases.py  # Excel writer used by Phase 2
 ```

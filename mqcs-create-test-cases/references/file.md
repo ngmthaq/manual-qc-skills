@@ -1,20 +1,9 @@
----
-name: create-test-cases
-description: >
-  Convert a drafted test case Excel file (the output of the draft-test-cases skill) into tickets
-  in Jira, Linear, or GitHub using the corresponding MCP server. Use this skill when the user has
-  an `.xlsx` of test cases and asks to file, push, sync, create, or import them as tickets/issues.
-  Requires the matching MCP (Atlassian Rovo for Jira, Linear MCP for Linear, GitHub MCP for
-  GitHub) to be connected — if none is available the skill stops and tells the user what to
-  install. Do NOT use this skill to draft new test cases or to learn an Excel format — those
-  belong to draft-test-cases and onboarding respectively.
----
+# Phase 3 — File Test Cases as Tickets
 
-# Create Test Cases Skill
-
-Read a draft test case Excel file and create one ticket per test case row in the user's chosen
-ticket system (Jira / Linear / GitHub) via the appropriate MCP. Always do a dry-run with the
-user before any ticket is created, and always print the resulting ticket URLs back.
+Read the draft Excel file produced in Phase 2 and create one ticket per test case row in the
+user's chosen ticket system (Jira / Linear / GitHub) via the appropriate MCP. Always do a
+dry-run with the user before any ticket is created, and always print the resulting ticket URLs
+back.
 
 ---
 
@@ -22,18 +11,18 @@ user before any ticket is created, and always print the resulting ticket URLs ba
 
 Before proceeding, verify all three inputs are available:
 
-1. **Draft Excel file** — produced by the **draft-test-cases** skill. Look in
+1. **Draft Excel file** — produced by Phase 2. If not produced in the current session, look in
    `/mnt/user-data/uploads/` and `/mnt/user-data/outputs/` for `.xlsx` files. If multiple are
    present, ask which one. If none, tell the user:
 
-   > I need a drafted test case Excel file. Run the **draft-test-cases** skill first to produce
-   > one, then come back to this skill to file the tickets.
+   > I need a drafted test case Excel file. Run Phase 2 (Draft) first to produce one, then
+   > come back to this phase to file the tickets.
 
 2. **TEST_CASE_CONVENTION.md** — must be present in Project Knowledge so column meanings are
    known. If absent, tell the user:
 
-   > I can't find `TEST_CASE_CONVENTION.md` in Project Knowledge. Run **onboarding** first so
-   > I know which columns mean title, steps, expected result, priority, etc.
+   > I can't find `TEST_CASE_CONVENTION.md` in Project Knowledge. Run **mqcs-onboarding**
+   > first so I know which columns mean title, steps, expected result, priority, etc.
 
 3. **A connected ticket-system MCP** — at least one of:
    - **Atlassian Rovo MCP** (Jira)
@@ -43,17 +32,16 @@ Before proceeding, verify all three inputs are available:
    If none is connected, stop and tell the user:
 
    > No ticket-system MCP is connected. Connect one of **Atlassian Rovo (Jira)**, **Linear**,
-   > or **GitHub** in your MCP settings and re-run this skill. I will not create tickets without
-   > one of these MCPs available.
+   > or **GitHub** in your MCP settings and re-run this phase. I will not create tickets
+   > without one of these MCPs available.
 
    If more than one is connected, ask the user which target system to use.
 
 ---
 
-## Step 1 — Read the Draft File
+## Step 3.1 — Read the Draft File
 
-Load the `.xlsx` with pandas/openpyxl (re-use logic from `draft-test-cases/scripts/` if helpful).
-For each sheet that contains test cases:
+Load the `.xlsx` with pandas/openpyxl. For each sheet that contains test cases:
 
 - Identify the header row from TEST_CASE_CONVENTION.md.
 - Skip grouping rows and empty rows.
@@ -64,7 +52,7 @@ Do not modify the Excel file. Treat it as read-only input.
 
 ---
 
-## Step 2 — Ask the User for Destination Settings
+## Step 3.2 — Ask the User for Destination Settings
 
 Confirm with the user before any ticket is created:
 
@@ -72,7 +60,8 @@ Confirm with the user before any ticket is created:
 
 - **Target system**: Jira / Linear / GitHub (skip the prompt if only one MCP is connected).
 - **Dry-run vs. real run**: default to dry-run on the first pass.
-- **Parent / epic / tracking issue** (optional): if present, every created ticket is linked to it.
+- **Parent / epic / tracking issue** (optional): if present, every created ticket is linked
+  to it.
 - **Labels to apply** (optional): in addition to any derived from the Type / Module / Feature
   columns, always add `qa-test-case` so the tickets are easy to bulk-find later.
 
@@ -98,7 +87,7 @@ Confirm with the user before any ticket is created:
 
 ---
 
-## Step 3 — Map Columns → Ticket Fields
+## Step 3.3 — Map Columns → Ticket Fields
 
 Use TEST_CASE_CONVENTION.md to identify which Excel columns hold which information. The default
 mapping is:
@@ -130,11 +119,12 @@ match the target's, pass them through unchanged.
 | Medium / P2        | Medium  | Medium (3) | `p2`         |
 | Low / P3           | Low     | Low (4)    | `p3`         |
 
-GitHub has no priority field, so priority is always emitted as a `p0`/`p1`/`p2`/`p3` label there.
+GitHub has no priority field, so priority is always emitted as a `p0`/`p1`/`p2`/`p3` label
+there.
 
 ---
 
-## Step 4 — Present the Dry-Run for Approval
+## Step 3.4 — Present the Dry-Run for Approval
 
 Render a Markdown table to the chat with one row per test case, showing exactly what will be
 created. Columns:
@@ -153,14 +143,14 @@ Then ask:
 > - Reply **"approved"** to create them.
 > - Reply with row numbers and changes to revise (e.g. _"row 4 priority is wrong, should be High"_,
 >   _"drop rows 7 and 12"_).
-> - Reply **"export only"** to skip ticket creation and just save the rendered payloads to a JSON
->   file you can review.
+> - Reply **"export only"** to skip ticket creation and just save the rendered payloads to a
+>   JSON file you can review.
 
 Do not call any MCP write tool before explicit approval.
 
 ---
 
-## Step 5 — Create the Tickets
+## Step 3.5 — Create the Tickets
 
 Once approved:
 
@@ -171,10 +161,11 @@ Once approved:
      project/cycle, and parent link if any.
    - **GitHub MCP**: create issue with title, body, labels (including priority label),
      milestone, assignees. Use a task-list checkbox in the parent tracking issue if one was
-     given (see Step 6).
+     given (see Step 3.6).
 
 2. **Stop on first failure.** Do not silently skip. Tell the user which row failed, the error
-   from the MCP, and ask whether to retry, skip, or abort. This keeps partial batches debuggable.
+   from the MCP, and ask whether to retry, skip, or abort. This keeps partial batches
+   debuggable.
 
 3. **Rate limiting**: if the MCP responds with a rate-limit or throttling error, wait and
    retry that single row with exponential backoff (1s, 2s, 4s, max 3 tries) before surfacing.
@@ -183,7 +174,7 @@ Once approved:
 
 ---
 
-## Step 6 — Wire Up Parent Linking (if requested)
+## Step 3.6 — Wire Up Parent Linking (if requested)
 
 If the user supplied a parent / epic / tracking issue:
 
@@ -196,7 +187,7 @@ If the user supplied a parent / epic / tracking issue:
 
 ---
 
-## Step 7 — Report Back
+## Step 3.7 — Report Back
 
 Once the batch finishes (or aborts), print a final report:
 
@@ -232,5 +223,5 @@ of `{tc_id, title, ticket_key, ticket_url, status}` records.
 - Never silently skip rows. Either include them or surface the reason.
 - Never alter the source Excel file.
 - If the user pivots mid-flow (e.g. "actually let's send these to Linear instead"), restart at
-  Step 2 — destination changes invalidate the previous dry-run.
+  Step 3.2 — destination changes invalidate the previous dry-run.
 - Always add the `qa-test-case` label so the batch can be re-found and bulk-edited later.

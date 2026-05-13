@@ -2,7 +2,7 @@
 
 Prints content (via pandas) and formatting (via openpyxl) for every sheet — including
 merged cells, column widths, row heights, fonts, fills, borders, alignment, and data
-validation rules. The onboarding skill uses this output to build TEST_CASE_CONVENTION.md.
+validation rules. The mqcs-onboarding skill uses this output to build TEST_CASE_CONVENTION.md.
 
 Usage:
     python analyze_excel.py <path-to-xlsx>
