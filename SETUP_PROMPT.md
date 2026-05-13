@@ -9,39 +9,37 @@ your confirmation between each step rather than firing everything at once.
 
 ## How to use
 
-1. Push this repo to GitHub and copy the repo URL.
-2. Create a new **Project** in Claude Desktop or claude.ai.
-3. Open a chat inside that Project.
-4. Paste the prompt below as your first message, **replacing `<REPO_URL>`** with your GitHub
-   URL.
-5. Follow Claude's prompts.
+1. Create a new **Project** in Claude Desktop or claude.ai.
+2. Open a chat inside that Project.
+3. Paste the prompt below as your first message.
+4. Follow Claude's prompts.
 
 ---
 
 ## Prompt to paste
 
-````text
-I want to set up the Manual QA Skills suite from <REPO_URL> in this Claude project.
+````md
+I want to set up the Manual QA Skills suite from https://github.com/ngmthaq/manual-qc-skills in this Claude project.
 Walk me through installing it correctly, one step at a time. Do not skip ahead — wait for
 me to confirm each step before moving on. If I tell you something failed at any step, stop
 and help me troubleshoot before continuing.
 
 Here is the setup script you must follow:
 
-### Step 1 — Fetch the repo
+### Step 1 — Fetch the repo and discover its contents
 
-Tell me the exact `git clone` command for `<REPO_URL>`, plus the alternative ZIP download
-URL for users without git. Confirm that after extraction I should see these folders and files
-at the repo root:
+Tell me the exact `git clone` command for `https://github.com/ngmthaq/manual-qc-skills`, plus
+the alternative ZIP download URL for users without git.
 
-- `INSTRUCTIONS.md`
-- `README.md`
-- `onboarding/` (with SKILL.md + scripts/)
-- `analyze-requirement/` (with SKILL.md)
-- `draft-test-cases/` (with SKILL.md + scripts/)
-- `create-test-cases/` (with SKILL.md)
+Then, **read the repo yourself** (browse the GitHub URL directly) and list back to me:
 
-Wait for me to confirm I have all six items locally before continuing.
+- The top-level files (e.g. `INSTRUCTIONS.md`, `README.md`).
+- Every top-level folder that contains a `SKILL.md` — those are the skills to install.
+
+Do not hard-code the skill list — derive it from what is actually in the repo at the time of
+setup. If the repo's contents change later, this same prompt should still work.
+
+Wait for me to confirm I see the same set locally before continuing.
 
 ### Step 2 — Paste INSTRUCTIONS.md into Project Instructions
 
@@ -53,10 +51,13 @@ Tell me to:
 
 Wait for me to confirm it is saved.
 
-### Step 3 — Install the four skills
+### Step 3 — Install every skill found in the repo
 
-For each of the four skill folders, in this exact order — `onboarding`,
-`analyze-requirement`, `draft-test-cases`, `create-test-cases` — tell me:
+Use the skill list you discovered in Step 1 (every top-level folder containing a `SKILL.md`).
+If a skill's `SKILL.md` declares prerequisites on another skill in its description, install
+prerequisites first; otherwise any order is fine.
+
+For each skill folder, tell me:
 
 1. Zip the folder so the resulting archive contains a top-level `SKILL.md`
    (and `scripts/` / `references/` if present).
@@ -111,7 +112,8 @@ Once onboarding produces the file, tell me to:
 
 Print a short setup report covering:
 
-- Skills installed: list the four with a check mark for each that succeeded.
+- Skills installed: list every skill you discovered in Step 1 with a check mark for each
+  that succeeded.
 - INSTRUCTIONS.md pasted into Project Instructions: yes/no.
 - TEST_CASE_CONVENTION.md in Project Knowledge: yes/no.
 - MCP connectors enabled: list the ones I chose plus their sanity-check status.
@@ -134,5 +136,5 @@ Stop after the report. Do not pre-run analyze-requirement until I give you input
   add MCPs later by re-running just Step 5.
 - If you re-run this prompt later (e.g. after pulling repo updates), Claude will re-upload
   skills only where you confirm a change is needed; existing skills stay in place.
-- The `<REPO_URL>` placeholder must be a public Git URL, or a private one your local `git`
-  is authenticated to clone from.
+- The repo URL baked into the prompt above is public; if you fork it, swap the URL in both
+  the "How to use" preamble and the `## Prompt to paste` block.
