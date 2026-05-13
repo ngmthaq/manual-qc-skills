@@ -9,14 +9,6 @@ don't collide with other skills you may have installed.
 
 ---
 
-## The Skills
-
-```
-mqcs-onboarding ─▶ mqcs-create-test-cases
-  (once,             (per requirement — runs the full
-   per project)       analyze → draft → file flow)
-```
-
 ### [mqcs-onboarding](mqcs-onboarding/SKILL.md)
 
 Run **once per project**. Upload a sample test-case Excel file; the skill analyzes its sheet
