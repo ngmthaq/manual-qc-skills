@@ -1,9 +1,18 @@
 # Setup Prompt
 
-A copy-paste prompt for **Claude Desktop** or **claude.ai** that walks you through installing
-this skill suite into a Claude **Project**: the four skills, the persona instructions, the MCP
-connectors, and the first onboarding run. The walkthrough is interactive — Claude waits for
-your confirmation between each step rather than firing everything at once.
+A copy-paste prompt for **Claude Desktop** or **claude.ai** that walks you through setting up
+this skill suite inside a Claude **Project**: the persona instructions, the skill procedures
+(fetched directly from GitHub — no zip upload needed), the MCP connectors, and the first
+onboarding run. The walkthrough is interactive — Claude waits for your confirmation between
+each step rather than firing everything at once.
+
+> **No skill-zip upload required.** Claude fetches each `SKILL.md` and every companion
+> file the skill ships with (whatever subfolders are present — scripts, references,
+> templates, examples, etc.) directly from GitHub raw URLs, and treats them as a loaded
+> skill for the rest of the session. The trade-off: skill state is per-chat — open a new
+> chat in the same Project and paste this prompt again to reload. To make the load
+> persistent across chats, paste the setup prompt into the Project's **Custom Instructions**
+> so every new chat starts pre-loaded.
 
 ---
 
@@ -26,47 +35,72 @@ and help me troubleshoot before continuing.
 
 Here is the setup script you must follow:
 
-### Step 1 — Fetch the repo and discover its contents
+### Step 1 — Discover the repo's contents
 
-Tell me the exact `git clone` command for `https://github.com/ngmthaq/manual-qc-skills`, plus
-the alternative ZIP download URL for users without git.
+**Read the repo yourself directly from GitHub** — you have web access; use it. Fetch the
+repository tree at `https://github.com/ngmthaq/manual-qc-skills` (the GitHub API endpoint
+`https://api.github.com/repos/ngmthaq/manual-qc-skills/git/trees/main?recursive=1` is the
+most reliable way) and list back to me:
 
-Then, **read the repo yourself** (browse the GitHub URL directly) and list back to me:
+- The top-level files (expect at least `INSTRUCTIONS.md` and `README.md`).
+- Every top-level folder that contains a `SKILL.md` — those are the skills to load.
+- For each skill folder, list **every** file inside it (including everything under any
+  subdirectory at any depth — e.g. `scripts/`, `references/`, `templates/`, or anything
+  else the skill ships with). Do not enumerate subfolder names ahead of time; just walk
+  whatever the repo tree contains.
 
-- The top-level files (e.g. `INSTRUCTIONS.md`, `README.md`).
-- Every top-level folder that contains a `SKILL.md` — those are the skills to install.
+Do not hard-code the skill list — derive it from what is actually in the repo at fetch time.
+If the repo's contents change later, this same prompt should still work.
 
-Do not hard-code the skill list — derive it from what is actually in the repo at the time of
-setup. If the repo's contents change later, this same prompt should still work.
+I do **not** need to clone the repo locally — you will fetch files directly from GitHub on
+my behalf. Confirm the discovered list with me before continuing.
 
-Wait for me to confirm I see the same set locally before continuing.
+### Step 2 — Load INSTRUCTIONS.md into the Project
 
-### Step 2 — Paste INSTRUCTIONS.md into Project Instructions
+Fetch the raw content of `INSTRUCTIONS.md` from GitHub:
 
-Tell me to:
-1. Open `INSTRUCTIONS.md` from the repo.
-2. Copy its full contents.
-3. Paste it into this project's **Custom Instructions** field (Project settings → Instructions).
-4. Save.
+```
+https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/INSTRUCTIONS.md
+```
 
-Wait for me to confirm it is saved.
+Display the full content back to me in a single fenced code block, then tell me to:
 
-### Step 3 — Install every skill found in the repo
+1. Copy the contents from the code block.
+2. Paste them into this project's **Custom Instructions** field (Project settings →
+   Instructions).
+3. Save.
+
+Wait for me to confirm it is saved before continuing.
+
+### Step 3 — Load every skill into this session
 
 Use the skill list you discovered in Step 1 (every top-level folder containing a `SKILL.md`).
-If a skill's `SKILL.md` declares prerequisites on another skill in its description, install
+If a skill's `SKILL.md` declares prerequisites on another skill in its description, load
 prerequisites first; otherwise any order is fine.
 
-For each skill folder, tell me:
+For each skill folder, do the following yourself — do **not** ask me to upload anything:
 
-1. Zip the folder so the resulting archive contains a top-level `SKILL.md`
-   (and `scripts/` / `references/` if present).
-2. Upload the zip via the Skills panel:
-   - **claude.ai**: Settings → Capabilities → Skills → Upload skill
-   - **Claude Desktop**: Settings → Capabilities → Skills → Upload skill
-3. Enable the skill for this project.
+1. Fetch the raw `SKILL.md` from
+   `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/<skill-folder>/SKILL.md`
+   and read its full content.
+2. Fetch **every other file** in that skill folder (recursively, at any depth) using the
+   same raw URL pattern. Do not filter by subfolder name — whatever the skill ships with
+   (`scripts/`, `references/`, `templates/`, or anything else) becomes part of the loaded
+   skill. Keep the file contents in context so you can write them to the sandbox or use
+   them when the skill is later invoked and its procedure refers to them.
+3. Register the fetched `SKILL.md` as an active skill procedure for the rest of this session
+   under the skill's folder name. When I later say "run X", "use X", or "invoke X" for any
+   registered name, follow that skill's `SKILL.md` exactly, using its companion files
+   wherever the procedure references them by relative path.
 
-After each upload, wait for me to confirm before moving on to the next skill.
+After all skills are loaded, print a short table listing each loaded skill, the count of
+companion files fetched alongside it, and a one-line summary of what it does (from its
+`description:` frontmatter). Wait for me to confirm before continuing.
+
+> **Persistence note.** Anything loaded this way lives only in this chat session. To make
+> the skills available in every new chat in this Project, after Step 8 also tell me to paste
+> *this entire prompt* into the Project's **Custom Instructions** (appended after
+> `INSTRUCTIONS.md`), so each new chat re-runs the load automatically.
 
 ### Step 4 — Choose ticket systems and design tool
 
@@ -112,11 +146,15 @@ Once onboarding produces the file, tell me to:
 
 Print a short setup report covering:
 
-- Skills installed: list every skill you discovered in Step 1 with a check mark for each
-  that succeeded.
+- Skills loaded into this session: list every skill you discovered in Step 1 with a check
+  mark for each whose `SKILL.md` and companion files were successfully fetched.
 - INSTRUCTIONS.md pasted into Project Instructions: yes/no.
 - TEST_CASE_CONVENTION.md in Project Knowledge: yes/no.
 - MCP connectors enabled: list the ones I chose plus their sanity-check status.
+
+Also remind me — once, briefly — that the skills are session-scoped: if I want them
+auto-loaded in future chats, paste this whole setup prompt at the end of the Project's
+Custom Instructions (right after INSTRUCTIONS.md).
 
 Then tell me how to start using the suite:
 
@@ -134,7 +172,10 @@ Stop after the report. Do not pre-run analyze-requirement until I give you input
 - The walkthrough does *not* assume any specific MCP is already connected. Skipping Step 4
   (picking none) is fine — the skills will still work for raw text + Excel workflows; you can
   add MCPs later by re-running just Step 5.
-- If you re-run this prompt later (e.g. after pulling repo updates), Claude will re-upload
-  skills only where you confirm a change is needed; existing skills stay in place.
+- If you re-run this prompt later (e.g. after pushing repo updates), Claude re-fetches each
+  `SKILL.md` from GitHub, so changes propagate automatically — no re-upload needed.
+- Skills loaded by this prompt are **session-scoped**. To persist them across chats in the
+  same Project, paste this whole prompt into the Project's Custom Instructions (after
+  `INSTRUCTIONS.md`); each new chat will then auto-load.
 - The repo URL baked into the prompt above is public; if you fork it, swap the URL in both
   the "How to use" preamble and the `## Prompt to paste` block.
