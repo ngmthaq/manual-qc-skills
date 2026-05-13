@@ -39,25 +39,31 @@ troubleshoot before continuing.
 
 Here is the setup script you must follow:
 
-### Step 1 — Discover the repo's contents
+### Step 1 — Fetch the skill files from GitHub
 
-**Read the repo yourself directly from GitHub** — you have web access; use it. Fetch the
-repository tree at `https://github.com/ngmthaq/manual-qc-skills` (the GitHub API endpoint
-`https://api.github.com/repos/ngmthaq/manual-qc-skills/git/trees/main?recursive=1` is the
-most reliable way) and list back to me:
+The repo ships **two skills**, both prefixed `mqcs-` so they group together in the skill list:
 
-- The top-level files (expect at least `INSTRUCTIONS.md` and `README.md`).
-- Every top-level folder that contains a `SKILL.md` — those are the skills to load.
-- For each skill folder, list **every** file inside it (including everything under any
-  subdirectory at any depth — e.g. `scripts/`, `references/`, `templates/`, or anything
-  else the skill ships with). Do not enumerate subfolder names ahead of time; just walk
-  whatever the repo tree contains.
+1. **`mqcs-onboarding`** — one-time test-case Excel template learner.
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-onboarding/SKILL.md`
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-onboarding/scripts/analyze_excel.py`
 
-Do not hard-code the skill list — derive it from what is actually in the repo at fetch time.
-If the repo's contents change later, this same prompt should still work.
+2. **`mqcs-create-test-cases`** — end-to-end flow: analyze requirement → draft `.xlsx` → file
+   tickets via MCP.
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/SKILL.md`
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/references/analyze.md`
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/references/draft.md`
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/references/file.md`
+   - `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/mqcs-create-test-cases/scripts/write_test_cases.py`
 
-I do **not** need to clone the repo locally — you will fetch files directly from GitHub on
-my behalf. Confirm the discovered list with me before continuing.
+Plus the project persona (installed separately in Step 2, not as a skill):
+
+- `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/INSTRUCTIONS.md`
+
+Fetch every URL above. You have web access — use it. Do **not** ask me to clone the repo or
+upload zip files.
+
+Before continuing, list back to me the two skill names and the count of files you fetched per
+skill, so I can confirm nothing was missed.
 
 ### Step 2 — Install INSTRUCTIONS.md into the target Project's Custom Instructions
 
@@ -83,19 +89,14 @@ skills installed in Step 3 work everywhere, but the persona is per-project.
 
 ### Step 3 — Register every skill via `/skill-creator`
 
-Use the skill list you discovered in Step 1 (every top-level folder containing a `SKILL.md`).
-If a skill's `SKILL.md` declares prerequisites on another skill in its description, register
-prerequisites first; otherwise any order is fine.
+Register both skills from Step 1, in this order (so prerequisites come first):
 
-For each skill folder, do the following:
+1. `mqcs-onboarding`
+2. `mqcs-create-test-cases` (depends on `mqcs-onboarding`'s output, `TEST_CASE_CONVENTION.md`)
 
-1. **Fetch the raw `SKILL.md`** from
-   `https://raw.githubusercontent.com/ngmthaq/manual-qc-skills/main/<skill-folder>/SKILL.md`
-   and read its full content (frontmatter + body).
-2. **Fetch every other file** in that skill folder, recursively at any depth, using the
-   same raw URL pattern. Do not filter by subfolder name — whatever the skill ships with
-   (scripts, references, templates, anything else) is part of the skill.
-3. **Prepare a self-contained skill body.** Start from the fetched `SKILL.md`. For every
+For each skill, do the following:
+
+1. **Prepare a self-contained skill body.** Start from the fetched `SKILL.md`. For every
    companion file the procedure references by relative path — whether it's a script (e.g.
    `scripts/write_test_cases.py`) or a reference doc (e.g. `references/analyze.md`) —
    inline that file's content into the body under a `## Companion Files` section as a
@@ -103,20 +104,20 @@ For each skill folder, do the following:
    - Scripts are written to a temp path before being executed.
    - Reference docs are read from the inlined fenced blocks instead of the `references/`
      folder, so the skill remains runnable without external file access.
-   Do not invent companion files — only inline what was actually fetched.
-4. **Tell me to type `/skill-creator`** in the chat input. Wait for `/skill-creator` to
+   Inline only the files you actually fetched in Step 1 — do not invent companion files.
+2. **Tell me to type `/skill-creator`** in the chat input. Wait for `/skill-creator` to
    activate.
-5. **Walk me through `/skill-creator` for this skill**, supplying the values you prepared:
-   - **Name**: the skill folder name (e.g. `mqcs-create-test-cases`). All skills in this repo
-     are already prefixed `mqcs-`; preserve the prefix exactly as the folder name has it.
+3. **Walk me through `/skill-creator` for this skill**, supplying the values you prepared:
+   - **Name**: the exact skill name — `mqcs-onboarding` or `mqcs-create-test-cases`. Keep
+     the `mqcs-` prefix verbatim.
    - **Description**: the exact `description:` value from the SKILL.md frontmatter.
-   - **Instructions / body**: the self-contained body you prepared in step 3 above. Paste
-     it for me to copy into whatever input `/skill-creator` asks for.
+   - **Instructions / body**: the self-contained body you prepared above. Paste it for me
+     to copy into whatever input `/skill-creator` asks for.
    - **Scope**: choose **user / account level** (available in all projects). Tell me which
      toggle or option corresponds to this in the `/skill-creator` UI.
-6. Wait for me to confirm `/skill-creator` reported success before moving to the next skill.
+4. Wait for me to confirm `/skill-creator` reported success before moving to the next skill.
 
-After all skills are registered, print a short table listing each skill, the count of
+After both skills are registered, print a short table listing each skill, the count of
 companion files inlined, and a one-line summary of what it does (from its `description:`
 frontmatter). Wait for me to confirm before continuing.
 
@@ -174,8 +175,8 @@ remind me that I will run `mqcs-onboarding` once per project and upload each pro
 
 Print a short setup report covering:
 
-- Skills registered (user-level): list every skill you discovered in Step 1 with a check
-  mark for each that `/skill-creator` confirmed as installed.
+- Skills registered (user-level): `mqcs-onboarding` and `mqcs-create-test-cases`, with a
+  check mark for each that `/skill-creator` confirmed as installed.
 - INSTRUCTIONS.md pasted into target Project's Custom Instructions: yes/no, and which project.
 - TEST_CASE_CONVENTION.md in target Project's Knowledge: yes/no, and which project.
 - MCP connectors enabled: list the ones I chose plus their sanity-check status.
