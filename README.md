@@ -1,7 +1,7 @@
 # Manual QA Skills
 
 A pair of Claude skills for a manual-QA workflow: learn your test-case Excel template once,
-then take any requirement (text / Jira / Linear / GitHub / Figma) all the way to filed tickets
+then take any requirement (text / Jira / Linear / GitHub / Figma) all the way to created tickets
 in your tracker.
 
 All skills are prefixed `mqcs-` (Manual QC Skills) so they group together in the skill list and
@@ -30,7 +30,7 @@ End-to-end, three approval-gated phases:
    `TEST_CASE_CONVENTION.md` exactly. Covers happy path, edge cases, negative cases, NFR cases,
    risk-driven cases — plus visual states, responsive breakpoints, exact copy/labels, and
    accessibility cases when the analysis carries Figma context.
-3. **File** — pushes one ticket per row into Jira, Linear, or GitHub via the matching MCP.
+3. **Create Tickets** — pushes one ticket per row into Jira, Linear, or GitHub via the matching MCP.
    Always does a dry-run first; reports back ticket keys/URLs and optionally writes a
    `{file}.tickets.json` sidecar.
 
@@ -48,12 +48,12 @@ the top-level [SKILL.md](mqcs-create-test-cases/SKILL.md) is the slim orchestrat
 `mqcs-create-test-cases` calls out to MCP servers when the input is a URL or the output is a
 ticket:
 
-| Source / target           | MCP server          | Used in phase                |
-| ------------------------- | ------------------- | ---------------------------- |
-| Jira tickets              | Atlassian Rovo MCP  | Analyze (read), File (write) |
-| Linear issues             | Linear MCP          | Analyze (read), File (write) |
-| GitHub issues             | GitHub MCP          | Analyze (read), File (write) |
-| Figma designs (read-only) | claude.ai Figma MCP | Analyze (read)               |
+| Source / target           | MCP server          | Used in phase                          |
+| ------------------------- | ------------------- | -------------------------------------- |
+| Jira tickets              | Atlassian Rovo MCP  | Analyze (read), Create Tickets (write) |
+| Linear issues             | Linear MCP          | Analyze (read), Create Tickets (write) |
+| GitHub issues             | GitHub MCP          | Analyze (read), Create Tickets (write) |
+| Figma designs (read-only) | claude.ai Figma MCP | Analyze (read)                         |
 
 No MCP is required to use raw-text input + `mqcs-onboarding` + the Draft phase — those work
 purely on uploaded files. MCPs only become required at the edges: pulling from a ticketing

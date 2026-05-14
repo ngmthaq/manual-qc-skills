@@ -4,7 +4,7 @@ description: >
   End-to-end manual-QA flow in three approval-gated phases: (1) analyze a requirement from raw
   text, Jira / Linear / GitHub tickets, and/or Figma designs into a structured Markdown
   breakdown; (2) draft test cases against the project's TEST_CASE_CONVENTION.md and write them
-  to an Excel file; (3) file each test case as a ticket in Jira, Linear, or GitHub via the
+  to an Excel file; (3) create a ticket for each test case in Jira, Linear, or GitHub via the
   matching MCP. Use when the user wants to turn a requirement into test cases or tickets. Each
   phase requires explicit user approval before the next starts, and the user can enter the flow
   at any phase if they already have the upstream artifact. Requires TEST_CASE_CONVENTION.md in
@@ -20,10 +20,10 @@ description: >
 
 ---
 
-A three-phase workflow that takes a requirement all the way to filed tickets:
+A three-phase workflow that takes a requirement all the way to created tickets:
 
 ```
-Phase 1: Analyze          ─▶      Phase 2: Draft      ─▶    Phase 3: File
+Phase 1: Analyze          ─▶      Phase 2: Draft      ─▶    Phase 3: Ticket
 (requirement → analysis)          (analysis → xlsx)         (xlsx → tickets via MCP)
 ```
 
@@ -38,7 +38,7 @@ reference for the phase you are currently executing — do not pre-load all thre
 | ----------- | ---------------------------------------- | -------------------------------- |
 | 1 — Analyze | Raw text / ticket URL / Figma URL        | Approved Markdown analysis       |
 | 2 — Draft   | Approved analysis + TEST_CASE_CONVENTION | Approved `.xlsx` test case draft |
-| 3 — File    | Drafted `.xlsx` + connected MCP          | Created tickets + report         |
+| 3 — Ticket  | Drafted `.xlsx` + connected MCP          | Created tickets + report         |
 
 ---
 
@@ -50,7 +50,7 @@ Choose based on what the user supplied:
 - **An already-approved analysis pasted into the chat** → skip to Phase 2.
 - **A drafted `.xlsx` test case file** → skip to Phase 3.
 
-If the user's intent is ambiguous (e.g. they paste a ticket URL but also mention "file
+If the user's intent is ambiguous (e.g. they paste a ticket URL but also mention "create
 tickets"), ask once which phase they want to start in; do not assume the full flow.
 
 ---
@@ -75,14 +75,14 @@ stop the turn.
 
 Tell the user:
 
-> The draft is saved as **{filename}**. Want me to file these as tickets in Jira / Linear /
+> The draft is saved as **{filename}**. Want me to create tickets for these in Jira / Linear /
 > GitHub now (Phase 3)?
 >
 > - Reply **"yes"** and I'll proceed (a connected MCP is required).
 > - Reply **"no"** and I'll stop here — you can come back later and run Phase 3 against this
 >   file.
 
-If yes, load `references/file.md` and proceed. If no, stop the turn.
+If yes, load `references/ticket.md` and proceed. If no, stop the turn.
 
 ### Never auto-advance
 
@@ -117,6 +117,6 @@ loaded:
   once at the start; rules apply throughout.
 - [references/analyze.md](references/analyze.md) — full procedure for Phase 1.
 - [references/draft.md](references/draft.md) — full procedure for Phase 2.
-- [references/file.md](references/file.md) — full procedure for Phase 3.
+- [references/ticket.md](references/ticket.md) — full procedure for Phase 3.
 - [scripts/write_test_cases.py](scripts/write_test_cases.py) — Excel writer invoked by Phase 2.
   See its module docstring for the spec JSON schema.

@@ -1,4 +1,4 @@
-# Phase 3 — File Test Cases as Tickets
+# Phase 3 — Create Tickets from Test Cases
 
 Read the draft Excel file produced in Phase 2 and create one ticket per test case row in the
 user's chosen ticket system (Jira / Linear / GitHub) via the appropriate MCP. Always do a
@@ -16,7 +16,7 @@ Before proceeding, verify all three inputs are available:
    present, ask which one. If none, tell the user:
 
    > I need a drafted test case Excel file. Run Phase 2 (Draft) first to produce one, then
-   > come back to this phase to file the tickets.
+   > come back to this phase to create the tickets.
 
 2. **TEST_CASE_CONVENTION.md** — must be present in Project Knowledge so column meanings are
    known. If absent, tell the user:
