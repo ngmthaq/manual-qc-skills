@@ -1,4 +1,4 @@
-# Manual QA Skills
+# Manual QC Skills
 
 A set of Claude skills for a manual-QA workflow: learn your test-case template once (by pasting
 its header into chat), then take any requirement (text / Jira / Linear / GitHub / Figma) all the
