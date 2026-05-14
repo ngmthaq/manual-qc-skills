@@ -43,8 +43,9 @@ Extract:
 Map sections to test case content:
 
 - **📋 Summary** → used for the filename and sheet title (if applicable)
-- **⚙️ Functional Requirements** → primary source for happy path and functional test cases
-- **🔒 Non-Functional Requirements** → source for performance, security, usability test cases
+- **⚙️ Functional Requirements** → primary source for happy path, validation, and business-rule test cases
+- **🖼️ UI Requirements** → primary source for UI, visual, content, and interaction-state test cases
+- **🔒 Non-Functional Requirements** → source for performance, security, usability, and responsive-behaviour test cases
 - **🎯 Scope** → confirms coverage boundaries; do not write test cases for out-of-scope items
 - **❓ Ambiguities & Questions** → flag in a note; do not generate cases for unresolved
   ambiguities
@@ -53,9 +54,9 @@ Map sections to test case content:
 ### From Figma design context (if present in the analysis)
 
 Phase 1 may have merged a Figma design into the analysis. Telltale signs: the Summary mentions
-a Figma design, the Functional Requirements list visible UI elements/states, the NFRs reference
-responsive breakpoints or accessibility annotations, or the Risks/Ambiguities section calls out
-design-vs-spec mismatches.
+a Figma design, the **🖼️ UI Requirements** section lists visible UI elements/states, the NFRs
+reference responsive breakpoints or accessibility annotations, or the Risks/Ambiguities section
+calls out design-vs-spec mismatches.
 
 When present, extract and reuse it directly — **do not re-fetch from the Figma MCP**. The
 analysis is the contract; this phase consumes it. From the design-derived content, mine:
@@ -81,7 +82,8 @@ Generate a comprehensive set of test cases covering:
 - **Non-functional cases** — one test case per relevant NFR (performance, security, etc.)
 - **Risk-driven cases** — targeted cases for each risk or dependency identified
 
-When the analysis includes Figma design context, additionally cover:
+When the analysis includes **🖼️ UI Requirements** (often sourced from Figma design context),
+additionally cover:
 
 - **Visual states** — each interaction state visible in the design (default, hover, focus,
   disabled, pressed, selected, loading, empty, error)

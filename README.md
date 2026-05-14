@@ -23,7 +23,7 @@ End-to-end, three approval-gated phases:
 
 1. **Analyze** — takes a requirement from any source (raw text, Jira / Linear / GitHub ticket,
    Figma design URL, or any combination) and produces a structured Markdown breakdown
-   (Summary, Scope, Functional, Non-Functional, Risks & Dependencies, Ambiguities). When a
+   (Summary, Scope, Functional, UI, Non-Functional, Risks & Dependencies, Ambiguities). When a
    Figma URL is supplied alongside a ticket, the analysis merges design context (screenshot +
    designer annotations + visible elements + responsive frames) with the ticket text.
 2. **Draft** — consumes the approved analysis and writes a `.xlsx` matching

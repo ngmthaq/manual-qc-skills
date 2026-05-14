@@ -75,12 +75,17 @@ above. Use the **claude.ai Figma MCP** to fetch the design.
 
 From the Figma response, extract for the analysis:
 
-- **Visible UI elements and copy** — buttons, fields, headings, labels, error/empty states
-- **Interaction states** if visible — hover/focus/disabled/loading variants, modals, dropdowns
+- **Visible UI elements and copy** — buttons, fields, headings, labels, error/empty states;
+  feed these into **UI Requirements**
+- **Interaction states** if visible — hover/focus/disabled/loading variants, modals,
+  dropdowns; feed these into **UI Requirements**
 - **Designer annotations** — frequently contain acceptance criteria, validation rules,
-  edge-case behaviour, or "see also" links to other frames that aren't in the ticket
-- **Responsive / breakpoint frames** if present — feed into Non-Functional Requirements
-- **Layout structure** — flows between frames (entry point → success / error)
+  edge-case behaviour, or "see also" links to other frames that aren't in the ticket; map
+  them into **UI Requirements**, **Functional Requirements**, or **Non-Functional
+  Requirements** depending on what they specify
+- **Responsive / breakpoint frames** if present — feed into **Non-Functional Requirements**
+- **Layout structure** — flows between frames (entry point → success / error); use this to
+  inform **UI Requirements** and flow-specific **Functional Requirements**
 
 Do **not** transcribe code from `get_design_context` into the analysis — its code output is for
 implementation, not for requirements. Use only the descriptive content (annotations, hints,
@@ -104,8 +109,11 @@ two together rather than splitting them:
 - **Scope** — design frames define what's in scope visually; ticket text defines functional
   scope. If the design shows states the ticket doesn't mention (e.g. an "account locked"
   modal), flag them as in-scope additions or as Ambiguities depending on intent.
-- **Functional Requirements** — derive from ticket _plus_ every visible interactive element
-  and state in the design. Designer annotations count as functional requirements.
+- **Functional Requirements** — derive from the ticket's behaviours, rules, validations,
+  permissions, and system responses. Do **not** treat the mere presence of a button, field, or
+  label as functional unless it implies behaviour.
+- **UI Requirements** — derive from the design's visible elements, copy, layout, and
+  interaction states, plus any explicit UI expectations in the ticket.
 - **Non-Functional Requirements** — pull from the design: responsive breakpoint frames,
   accessibility annotations, color/contrast notes, animation/transition specs.
 - **Risks & Dependencies** — call out design-vs-spec mismatches as risks; reference design
@@ -138,6 +146,22 @@ What the system must **do**. Each bullet is a discrete, verifiable behaviour der
 requirement. Use present-tense statements ("The system must…" / "Users can…").
 
 Group into sub-sections if the requirement spans multiple flows or user roles.
+
+---
+
+# 🖼️ UI Requirements
+
+What the user must **see and interact with**. Each bullet is a discrete, observable UI
+expectation derived from the requirement and/or design.
+
+Common items to capture when relevant:
+
+- Screens, sections, components, and controls that must be present
+- Labels, helper text, placeholders, button copy, and error/empty-state copy
+- Interaction states visible to the user (default, hover, focus, disabled, loading, selected)
+- Layout expectations explicitly shown in the requirement or design
+
+If no UI detail is provided, write: _No explicit UI requirements identified._
 
 ---
 
@@ -194,7 +218,7 @@ Present the analysis to the user and ask:
 
 ## Output Rules
 
-- Always output all six sections, even if some are brief.
+- Always output all seven sections, even if some are brief.
 - Do not add commentary before or after the Markdown document.
 - Do not wrap the output in a code fence — output raw Markdown.
 - If the source ticket is very thin, still produce all sections and flag gaps in the
