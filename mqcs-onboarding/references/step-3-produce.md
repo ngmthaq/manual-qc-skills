@@ -4,17 +4,18 @@ Write the extracted convention as a structured Markdown document. This is what w
 `TEST_CASE_CONVENTION.md` and machine-read by the **draft-test-cases** skill. Use the format
 below exactly — keep section names and table headers stable so draft-test-cases can parse it.
 
+Because the user pasted plain text rather than sharing the original template file, this
+convention captures **column schema and text conventions only**. Do not invent formatting,
+styling, or cell-level validation details — downstream skills produce Markdown files, not
+spreadsheets, so styling has no consumer anyway.
+
 ```markdown
 # Test Case Convention
 
-## Source File
+## Source
 
-- File name: <filename>
-- Sheets analyzed: <list>
-
-## Sheet Structure
-
-<describe sheet layout and purpose of each sheet>
+- Provided by: user-pasted header text
+- Template name (if user said): <name or "not specified">
 
 ## Column Schema
 
@@ -22,63 +23,21 @@ below exactly — keep section names and table headers stable so draft-test-case
 | --- | ----------- | ---- | -------- | ---------------------- |
 | 1   | ...         | ...  | ...      | ...                    |
 
-## Row Structure
-
-- Header row: row <N>
-- Grouping rows: <describe or "none">
-- Test case rows: <describe>
-
 ## ID / Numbering Scheme
 
-<describe the ID pattern, e.g. "TC-001 sequential" or "auto-incremented integer in column A">
+<describe the ID pattern the user showed, e.g. "TC-001 sequential", or "not specified">
 
 ## Text Patterns
 
-<describe consistent phrasing in title / steps / expected result fields>
-
-## Formatting Details
-
-### Column widths
-
-| Column | Width |
-| ------ | ----- |
-| A      | 12.0  |
-| ...    | ...   |
-
-### Header row styling
-
-- Font: <name>, size <N>, bold=<bool>, italic=<bool>, color <#RRGGBB>
-- Fill: <#RRGGBB or "none">
-- Border: <style or "none">
-- Alignment: horizontal=<>, vertical=<>, wrap_text=<bool>
-
-### Data row styling
-
-- Font: <name>, size <N>, bold=<bool>, italic=<bool>, color <#RRGGBB>
-- Fill: <#RRGGBB or "none">
-- Border: <style or "none">
-- Alignment: horizontal=<>, vertical=<>, wrap_text=<bool>
-
-### Grouping / section row styling
-
-<describe if grouping rows exist, otherwise "none">
-
-### Merged cells
-
-- <range>: <purpose>
-- ... or "none"
-
-### Data validation (dropdowns)
-
-| Cells | Type | Allowed values |
-| ----- | ---- | -------------- |
-| ...   | ...  | ...            |
-
-### Colour coding meaning
-
-<describe if applicable, otherwise "none">
+<describe consistent phrasing in title / steps / expected result fields that the user
+demonstrated, or "not specified">
 
 ## Example Row
 
-<reproduce one representative test case row as a bullet list using exact column names>
+<reproduce one representative test case row, if the user pasted one, as a bullet list using exact
+column names. If the user did not paste a sample row, write "not provided">
+
+## User-Provided Notes
+
+<any extra context the user volunteered in chat that does not fit the sections above, or "none">
 ```

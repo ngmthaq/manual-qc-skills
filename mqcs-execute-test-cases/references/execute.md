@@ -2,7 +2,7 @@
 
 Execute every test case in the approved execution plan. For each test case, run it via the
 appropriate MCP, capture the result and evidence, and store a structured result record.
-Never alter the source `.xlsx`.
+Never alter the source `.md`.
 
 ---
 
@@ -108,7 +108,7 @@ Capture from the response:
 
 ### Evaluate against the expected result
 
-From the **Expected Result** column of the source `.xlsx`, compare:
+From the **Expected Result** column of the source `.md`, compare:
 
 - Expected HTTP status code (if stated, e.g. `200 OK`, `404 Not Found`)
 - Expected response fields (if stated, e.g. `"status": "active"`)
@@ -251,7 +251,7 @@ Never silently swallow errors. Every error becomes a `Blocked` record with a cle
 
 ## Output Rules
 
-- Never alter the source `.xlsx`.
+- Never alter the source `.md`.
 - Never mark a test `Pass` without verifying the full expected result.
 - Never infer or guess request parameters that are not stated in the test steps.
 - The result records produced here are passed verbatim to Phase 3 — do not summarise them.

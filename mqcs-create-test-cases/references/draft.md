@@ -1,8 +1,9 @@
-# Phase 2 — Draft Test Cases to Excel
+# Phase 2 — Draft Test Cases to a Markdown File
 
 Draft test cases from the approved Phase 1 analysis, get user approval on the table, then
-produce a pixel-perfect Excel file matching the `TEST_CASE_CONVENTION.md` stored in Project
-Knowledge. The resulting `.xlsx` is the input to Phase 3 (file as tickets).
+produce a Markdown file containing the test case table — matching the column schema and
+conventions in `TEST_CASE_CONVENTION.md` (stored in Project Knowledge). The resulting `.md`
+file is the input to Phase 3 (file as tickets).
 
 ---
 
@@ -15,8 +16,8 @@ Before proceeding, verify both inputs are available:
    project context, stop and tell the user:
 
    > I can't find `TEST_CASE_CONVENTION.md` in this project's knowledge. Please run the
-   > **mqcs-onboarding** skill first by uploading your Excel test case template, then upload
-   > the generated `TEST_CASE_CONVENTION.md` file into Project Knowledge.
+   > **mqcs-onboarding** skill first by pasting your Excel test case template header, then
+   > upload the generated `TEST_CASE_CONVENTION.md` file into Project Knowledge.
 
 2. **Approved analysis** — the Phase 1 Markdown analysis the user just approved. Pass it
    through verbatim — do not regenerate or summarize it.
@@ -29,20 +30,20 @@ Before proceeding, verify both inputs are available:
 
 Extract:
 
-- Sheet structure (names, layout, purpose)
-- Column schema (exact column names, order, types, allowed values)
-- Header row index
-- Grouping row structure (if any)
-- ID / numbering scheme
-- Text patterns and phrasing conventions
-- All formatting details: merged cells, column widths, row heights, colours (fill, font),
-  borders, fonts, font sizes, bold/italic flags, alignment, wrap text settings
+- **Column schema** — exact column names, order, types, allowed values
+- **ID / numbering scheme** — pattern to use for each test case ID
+- **Text patterns** — phrasing conventions for title, steps, expected result, etc.
+- **User-Provided Notes** — any extra constraints the user volunteered during onboarding
+
+The convention is text-only. It does not define spreadsheet styling — there is no formatting,
+merged cells, column widths, or fonts to honour because Phase 2 writes a Markdown file, not
+an Excel file.
 
 ### From the approved analysis
 
 Map sections to test case content:
 
-- **📋 Summary** → used for the filename and sheet title (if applicable)
+- **📋 Summary** → used for the filename and the file's top-level heading
 - **⚙️ Functional Requirements** → primary source for happy path, validation, and business-rule test cases
 - **🖼️ UI Requirements** → primary source for UI, visual, content, and interaction-state test cases
 - **🔒 Non-Functional Requirements** → source for performance, security, usability, and responsive-behaviour test cases
@@ -122,7 +123,7 @@ After the table, display:
 
 > ✅ **{N} test cases generated.** Please review the list above.
 >
-> - Reply **"approved"** to write the Excel file.
+> - Reply **"approved"** to write the Markdown file.
 > - Or give feedback on specific rows or sections and I will revise before writing.
 
 ---
@@ -136,70 +137,78 @@ If the user provides feedback:
 - Ask for approval again
 - Repeat until the user replies with "approved" or equivalent confirmation
 
-Do not write any Excel file until explicit approval is received.
+Do not write any file until explicit approval is received.
 
 ---
 
-## Step 2.4 — Write the Excel File
+## Step 2.4 — Write the Markdown File
 
-Once approved, produce the Excel file pixel-perfect against the TEST_CASE_CONVENTION.
+Once approved, write a Markdown file containing the test cases as a Markdown table.
 
 ### Filename
 
-Format: `d-m-y-h-i-s-<requirement-summary>.xlsx`
+Format: `d-m-y-h-i-s-<requirement-summary>.md`
 
 - Use today's date in `d-m-y-h-i-s` format (e.g. `13-5-2026-14-30-15`)
 - Derive `<requirement-summary>` from the **📋 Summary** section of the approved analysis: take
   the first 5–7 significant words, lowercase, hyphen-separated, strip punctuation
-- Example: `13-5-2026-14-30-15-user-login-with-sso.xlsx`
+- Example: `13-5-2026-14-30-15-user-login-with-sso.md`
 
-### Excel generation approach
+### File contents
 
-Do **not** write openpyxl code inline. Build a single JSON spec describing every sheet, then
-run `scripts/write_test_cases.py` (in this skill's folder) to produce the `.xlsx`. The script
-handles columns, widths, header/data styling, borders, fills, fonts, merged cells, and data
-validation.
+The file is a plain Markdown document with exactly this structure:
 
-Translation rules from TEST_CASE_CONVENTION.md into the spec:
+```markdown
+# Test Cases — <requirement summary, title-cased>
 
-- **Sheets**: one entry per sheet in the convention, in the exact order and with exact names.
-- **header_row**: from the convention's Row Structure section.
-- **columns**: column names in exact order from the Column Schema table.
-- **column_widths**: from the Formatting Details → Column widths table, keyed by Excel letter.
-- **header_style / data_style**: from the corresponding Formatting Details sections. Use
-  `"none"` or `null` for absent fills/borders.
-- **merged_cells**: ranges from the Merged cells section, or omit/empty.
-- **data_validations**: convert each Data validation row to `{cells, type: "list", values: [...]}`.
-- **rows**: one dict per approved test case, keyed by the exact column names. Apply the ID
+_Source analysis_: <one-line restatement of the analysis Summary>
+_Generated_: <date the file is written, ISO 8601>
+_Convention_: TEST*CASE_CONVENTION.md
+\_Total*: <N> test cases
+
+| <Col 1> | <Col 2> | ... | <Col K> |
+| ------- | ------- | --- | ------- |
+| ...     | ...     | ... | ...     |
+```
+
+Translation rules from TEST_CASE_CONVENTION.md into the file:
+
+- **Columns**: use the column names in the **exact order** from the Column Schema table. Do
+  not rename, reorder, add, or drop columns.
+- **Table header separator**: one `---` cell per column. Left-align by default; use `:---:` /
+  `---:` only if the convention's Text Patterns explicitly call for centered or right-aligned
+  values.
+- **Rows**: one row per approved test case, keyed by the exact column names. Apply the ID
   numbering scheme from the convention (e.g. starting at `TC-001`). Write enum values exactly
-  as the convention lists them — do not paraphrase. Insert grouping rows at their correct
-  positions if the convention defines any.
+  as the convention lists them — do not paraphrase.
+- **Multi-line cell content**: if a step list or expected result needs multiple lines inside
+  a single cell, join them with `<br>` so the Markdown table stays single-row-per-test-case.
+  Preserve the user's phrasing — do not collapse semantically distinct steps.
+- **Pipes inside text**: escape literal `|` characters in cell content as `\|`.
 
-The output filename is `d-m-y-h-i-s-<requirement-summary>.xlsx` in `/mnt/user-data/outputs/`:
+Write the file to `/mnt/user-data/outputs/`:
 
 ```python
 from datetime import datetime
 now = datetime.now()
-filename = f"{now.day}-{now.month}-{now.year}-{now.hour}-{now.minute}-{now.second}-<requirement-summary>.xlsx"
+filename = f"{now.day}-{now.month}-{now.year}-{now.hour}-{now.minute}-{now.second}-<requirement-summary>.md"
 output_path = f"/mnt/user-data/outputs/{filename}"
+
+with open(output_path, "w") as f:
+    f.write(markdown_body)
+print(f"Saved: {output_path}")
 ```
 
-Then write the spec to a temp JSON file and run the script:
-
-```bash
-python scripts/write_test_cases.py /tmp/spec.json
-```
-
-See `scripts/write_test_cases.py` for the full spec JSON schema and accepted style fields.
-After the script reports the saved path, present the file to the user.
+After saving, present the filename to the user and proceed to the Phase 2 → Phase 3 hand-off
+question defined in `SKILL.md`.
 
 ---
 
 ## Output Rules
 
-- Never write the Excel file before receiving explicit user approval.
-- Never add columns, sheets, or formatting not present in the TEST_CASE_CONVENTION.
+- Never write the Markdown file before receiving explicit user approval.
+- Never add columns or change column order vs. the TEST_CASE_CONVENTION.
 - Never generate test cases for out-of-scope items or unresolved ambiguities.
-- If TEST_CASE_CONVENTION is ambiguous about a formatting detail, replicate the closest
-  observable pattern from the mqcs-onboarding source file rather than inventing something new.
+- If TEST_CASE_CONVENTION is ambiguous about a text pattern (e.g. step phrasing), pick the
+  closest pattern present in the convention's examples rather than inventing a new one.
 - The revision loop has no fixed limit — keep iterating until the user approves.

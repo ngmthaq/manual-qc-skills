@@ -1,36 +1,41 @@
 # Phase 1 — Classify Test Cases into an Execution Plan
 
-Read the source `.xlsx`, classify every test case by execution method (API / Browser / Manual),
-resolve environment details, and produce an execution plan the user can approve before any test
-runs.
+Read the source `.md` test case file, classify every test case by execution method
+(API / Browser / Manual), resolve environment details, and produce an execution plan the user
+can approve before any test runs.
 
 ---
 
 ## Step 1.1 — Load the Source File
 
-Locate the `.xlsx`:
+Locate the `.md`:
 
 1. Check if the file was produced in the current session.
-2. If not, scan `/mnt/user-data/uploads/` and `/mnt/user-data/outputs/` for `.xlsx` files
-   whose names match the `mqcs-create-test-cases` naming pattern (`d-m-y-h-i-s-*.xlsx`).
+2. If not, scan `/mnt/user-data/uploads/` and `/mnt/user-data/outputs/` for `.md` files
+   whose names match the `mqcs-create-test-cases` naming pattern (`d-m-y-h-i-s-*.md`).
 3. If multiple candidates are found, list them and ask the user which one to execute.
 4. If none are found, stop with the prerequisite message from `SKILL.md`.
 
-Read the file with `pandas` / `openpyxl`. Use `TEST_CASE_CONVENTION.md` from Project Knowledge
-to identify:
+Read the file as plain text and parse the Markdown table. Use `TEST_CASE_CONVENTION.md` from
+Project Knowledge to identify, by column name:
 
-- Header row index
-- Column that contains the test case **ID** (e.g. `TC-001`)
-- Column that contains the **Title / Test Name**
-- Column that contains **Steps** (or pre-condition + steps combined)
-- Column that contains **Expected Result**
-- Column that contains **Type / Category** (e.g. `API`, `UI`, `Functional`)
-- Column that contains **Priority**
+- The column that contains the test case **ID** (e.g. `TC-001`)
+- The column that contains the **Title / Test Name**
+- The column that contains **Steps** (or pre-condition + steps combined)
+- The column that contains **Expected Result**
+- The column that contains **Type / Category** (e.g. `API`, `UI`, `Functional`)
+- The column that contains **Priority**
 - Any column that might indicate the **HTTP method**, **endpoint**, or **URL** (if convention
   defines one)
 
-Skip grouping rows and blank rows. Build an in-memory list of test-case records keyed by
-exact column names.
+Parsing rules for the table:
+
+- Locate the header row by matching pipe-separated column names against the convention.
+- Skip the `| --- | --- | ... |` separator row and any blank lines.
+- Each remaining row is one test case. Split on `|`, trim whitespace from each cell.
+- Inside a cell, restore line breaks by replacing `<br>` with `\n`, and un-escape `\|` back
+  to `|` so multi-line steps survive intact.
+- Build an in-memory list of test-case records keyed by exact column names.
 
 ---
 
@@ -103,11 +108,11 @@ Output a Markdown document structured as follows:
 
 ## Test Case Execution Map
 
-| TC ID  | Title | Type (from xlsx) | Execution Method | Notes / Pre-conditions     |
-| ------ | ----- | ---------------- | ---------------- | -------------------------- |
-| TC-001 | ...   | API              | postman          | Requires auth header       |
-| TC-002 | ...   | UI               | chrome           | Requires logged-in session |
-| TC-003 | ...   | Functional       | manual           | No automated method        |
+| TC ID  | Title | Type (from source) | Execution Method | Notes / Pre-conditions     |
+| ------ | ----- | ------------------ | ---------------- | -------------------------- |
+| TC-001 | ...   | API                | postman          | Requires auth header       |
+| TC-002 | ...   | UI                 | chrome           | Requires logged-in session |
+| TC-003 | ...   | Functional         | manual           | No automated method        |
 
 ...
 ```
@@ -134,7 +139,7 @@ Repeat revision loop until approved. Do not start execution until explicit appro
 ## Output Rules
 
 - Never begin execution in this phase.
-- Never alter the source `.xlsx`.
+- Never alter the source `.md`.
 - If `TEST_CASE_CONVENTION.md` does not define a Type column, classify by heuristic (rules 2
   and 4 above) and note in the plan that type classification was inferred.
 - If a test case has no steps and no type, classify as `manual` and flag in the Notes column.

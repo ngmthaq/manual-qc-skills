@@ -2,13 +2,13 @@
 name: mqcs-execute-test-cases
 description: >
   Execute test cases produced by the mqcs-create-test-cases skill against a live system.
-  Reads the approved .xlsx test case file as the source of truth, then runs each test
+  Reads the approved Markdown test case file as the source of truth, then runs each test
   automatically: API test cases via the Postman MCP, browser/UI test cases via the Control
-  Chrome MCP. Records Pass / Fail / Blocked per row and writes an execution-result Excel
+  Chrome MCP. Records Pass / Fail / Blocked per row and writes an execution-result Markdown
   file with evidence. Use when the user wants to run, automate, or record results for a
   test case suite. Triggers on: "run test cases", "execute tests", "automate QA", "run the
-  xlsx against", "test the API", "execute in browser", or any request to validate a feature
-  against an existing test case file.
+  test cases against", "test the API", "execute in browser", or any request to validate a
+  feature against an existing test case file.
 ---
 
 # Execute Test Cases Skill
@@ -19,32 +19,32 @@ description: >
 
 ---
 
-A three-phase workflow that takes the approved test-case Excel file through automated
+A three-phase workflow that takes the approved test-case Markdown file through automated
 execution and produces an evidence-backed result report:
 
 ```
 Phase 1: Classify        ─▶    Phase 2: Execute      ─▶    Phase 3: Report
-(xlsx → execution plan)        (plan → run via MCP)        (runs → result xlsx + summary)
+(.md → execution plan)         (plan → run via MCP)        (runs → result .md + summary)
 ```
 
 Each phase is **approval-gated** — never auto-advance. The user can enter at any phase if
 they already have the upstream artifact.
 
-| Phase        | Inputs                                  | Output                             |
-| ------------ | --------------------------------------- | ---------------------------------- |
-| 1 — Classify | Approved `.xlsx` + TEST_CASE_CONVENTION | Approved execution plan (Markdown) |
-| 2 — Execute  | Execution plan + Postman/Chrome MCPs    | Raw result records + evidence      |
-| 3 — Report   | Result records                          | Result `.xlsx` + summary Markdown  |
+| Phase        | Inputs                                | Output                             |
+| ------------ | ------------------------------------- | ---------------------------------- |
+| 1 — Classify | Approved `.md` + TEST_CASE_CONVENTION | Approved execution plan (Markdown) |
+| 2 — Execute  | Execution plan + Postman/Chrome MCPs  | Raw result records + evidence      |
+| 3 — Report   | Result records                        | Result `.md` + summary in chat     |
 
 ---
 
 ## Prerequisites
 
-- **Source `.xlsx`** — the test case file produced by `mqcs-create-test-cases`. This is the
-  **single source of truth**; never alter it. If no file is present, tell the user:
+- **Source `.md`** — the test case Markdown file produced by `mqcs-create-test-cases`. This
+  is the **single source of truth**; never alter it. If no file is present, tell the user:
 
-  > I need a test case Excel file. Run the **mqcs-create-test-cases** skill first to produce
-  > one, then come back here with the `.xlsx` to execute.
+  > I need a test case Markdown file. Run the **mqcs-create-test-cases** skill first to
+  > produce one, then come back here with the `.md` file to execute.
 
 - **TEST_CASE_CONVENTION.md** — must be present in Project Knowledge. Required to understand
   column semantics (title, steps, expected result, type, etc.). If missing, stop and direct
@@ -61,7 +61,7 @@ they already have the upstream artifact.
 
 ## Pick the Starting Phase
 
-- **Has `.xlsx` but no execution plan** → start at Phase 1.
+- **Has `.md` but no execution plan** → start at Phase 1.
 - **Has an approved execution plan** → skip to Phase 2.
 - **Has raw result records but no report** → skip to Phase 3.
 
@@ -97,7 +97,7 @@ Approval of one phase is **not** approval of the next. Always ask the hand-off q
 
 ## Cross-Phase Guarantees
 
-- **Source `.xlsx` is read-only.** Never write back to it. All results go into a separate
+- **Source `.md` is read-only.** Never write back to it. All results go into a separate
   output file.
 - **TEST_CASE_CONVENTION.md is the column key.** Never infer column meanings; always derive
   them from the convention.

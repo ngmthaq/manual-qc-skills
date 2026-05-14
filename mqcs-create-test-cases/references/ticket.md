@@ -1,6 +1,6 @@
 # Phase 3 — Create Tickets from Test Cases
 
-Read the draft Excel file produced in Phase 2 and create one ticket per test case row in the
+Read the draft Markdown file produced in Phase 2 and create one ticket per test case row in the
 user's chosen ticket system (Jira / Linear / GitHub) via the appropriate MCP. Always do a
 dry-run with the user before any ticket is created, and always print the resulting ticket URLs
 back.
@@ -11,11 +11,12 @@ back.
 
 Before proceeding, verify all three inputs are available:
 
-1. **Draft Excel file** — produced by Phase 2. If not produced in the current session, look in
-   `/mnt/user-data/uploads/` and `/mnt/user-data/outputs/` for `.xlsx` files. If multiple are
-   present, ask which one. If none, tell the user:
+1. **Draft Markdown file** — produced by Phase 2. If not produced in the current session, look
+   in `/mnt/user-data/uploads/` and `/mnt/user-data/outputs/` for `.md` files matching the
+   Phase 2 naming pattern (`d-m-y-h-i-s-<summary>.md`). If multiple are present, ask which one.
+   If none, tell the user:
 
-   > I need a drafted test case Excel file. Run Phase 2 (Draft) first to produce one, then
+   > I need a drafted test case Markdown file. Run Phase 2 (Draft) first to produce one, then
    > come back to this phase to create the tickets.
 
 2. **TEST_CASE_CONVENTION.md** — must be present in Project Knowledge so column meanings are
@@ -41,14 +42,18 @@ Before proceeding, verify all three inputs are available:
 
 ## Step 3.1 — Read the Draft File
 
-Load the `.xlsx` with pandas/openpyxl. For each sheet that contains test cases:
+Read the `.md` file as plain text and parse the Markdown table:
 
-- Identify the header row from TEST_CASE_CONVENTION.md.
-- Skip grouping rows and empty rows.
-- Build an in-memory list of test-case records, each keyed by the exact column names from the
-  convention.
+- Locate the table by finding the header row whose pipe-separated column names match the
+  Column Schema in TEST_CASE_CONVENTION.md.
+- Skip the `| --- | --- | ... |` separator row.
+- Each remaining row is one test case. Split on `|`, trim whitespace from each cell, and key
+  the values by the exact column names from the convention.
+- Inside a cell, restore line breaks by replacing `<br>` with `\n`, and un-escape `\|` back to
+  `|` so multi-line steps and pipe-containing text are preserved for the ticket body.
+- Skip empty rows.
 
-Do not modify the Excel file. Treat it as read-only input.
+Do not modify the Markdown file. Treat it as read-only input.
 
 ---
 
@@ -89,10 +94,10 @@ Confirm with the user before any ticket is created:
 
 ## Step 3.3 — Map Columns → Ticket Fields
 
-Use TEST_CASE_CONVENTION.md to identify which Excel columns hold which information. The default
-mapping is:
+Use TEST_CASE_CONVENTION.md to identify which Markdown-table columns hold which information.
+The default mapping is:
 
-| Excel column intent          | Ticket field (Jira / Linear / GitHub)                               |
+| Column intent                | Ticket field (Jira / Linear / GitHub)                               |
 | ---------------------------- | ------------------------------------------------------------------- |
 | Title / Summary / Test Name  | `summary` (Jira) / `title` (Linear, GitHub)                         |
 | Pre-condition / Setup        | First section of description: `### Pre-condition`                   |
@@ -207,10 +212,11 @@ Parent: {parent key/URL or "none"}
 
 Then offer:
 
-> Save this report as a JSON sidecar next to the source Excel? (yes/no)
+> Save this report as a JSON sidecar next to the source Markdown file? (yes/no)
 
-If yes, write `{excel_basename}.tickets.json` to `/mnt/user-data/outputs/` containing the array
-of `{tc_id, title, ticket_key, ticket_url, status}` records.
+If yes, write `{md_basename}.tickets.json` to `/mnt/user-data/outputs/` (where `md_basename` is
+the Phase 2 Markdown file's name without the `.md` extension) containing the array of
+`{tc_id, title, ticket_key, ticket_url, status}` records.
 
 ---
 
@@ -221,7 +227,7 @@ of `{tc_id, title, ticket_key, ticket_url, status}` records.
   (title / steps / expected result) cannot be located in the convention, stop and ask the user
   which column to use.
 - Never silently skip rows. Either include them or surface the reason.
-- Never alter the source Excel file.
+- Never alter the source Markdown file.
 - If the user pivots mid-flow (e.g. "actually let's send these to Linear instead"), restart at
   Step 3.2 — destination changes invalidate the previous dry-run.
 - Always add the `qa-test-case` label so the batch can be re-found and bulk-edited later.
