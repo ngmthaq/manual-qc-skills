@@ -1,0 +1,27 @@
+{
+  "name": "manual-qc-skills",
+  "version": "1.0.0",
+  "description": "A set of Claude skills for a manual-QA workflow: learn your test-case template once (by pasting its header into chat), then take any requirement (text / Jira / Linear / GitHub / Figma) all the way to created tickets in your tracker — with all artifacts produced as Markdown files.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "zip:skills": "node scripts/zip-skills.cjs",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngmthaq/manual-qc-skills.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ngmthaq/manual-qc-skills/issues"
+  },
+  "homepage": "https://github.com/ngmthaq/manual-qc-skills#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "zip-a-folder": "^6.1.1"
+  }
+}
